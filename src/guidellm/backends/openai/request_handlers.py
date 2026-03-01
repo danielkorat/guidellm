@@ -522,7 +522,9 @@ class ChatCompletionsRequestHandler(TextCompletionsRequestHandler):
         choices, usage = self.extract_choices_and_usage(data)
         choice: dict[str, dict] = choices[0] if choices else {}
 
-        if choices and (content := choice.get("delta", {}).get("content")):
+        delta = choice.get("delta", {})
+        content = delta.get("content") or delta.get("reasoning_content") or delta.get("reasoning")
+        if choices and content:
             self.streaming_texts.append(content)
             updated = True
 
