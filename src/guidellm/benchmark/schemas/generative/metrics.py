@@ -823,7 +823,7 @@ class GenerativeMetrics(StandardBaseDict):
                 end_time=end_time,
             ),
             request_latency=StatusDistributionSummary.from_values_function(
-                function=lambda req: req.request_latency or 0.0,
+                function=lambda req: req.request_latency,  # None -> skip (from_values_function filters None)
                 successful=successful,
                 incomplete=incomplete,
                 errored=errored,
@@ -854,25 +854,25 @@ class GenerativeMetrics(StandardBaseDict):
                 errored=errored,
             ),
             time_to_first_token_ms=StatusDistributionSummary.from_values_function(
-                function=lambda req: req.time_to_first_token_ms or 0.0,
+                function=lambda req: req.time_to_first_token_ms,  # None -> skip
                 successful=successful,
                 incomplete=incomplete,
                 errored=errored,
             ),
             time_per_output_token_ms=StatusDistributionSummary.from_values_function(
                 function=lambda req: (
-                    req.time_per_output_token_ms or 0.0,
+                    req.time_per_output_token_ms,
                     req.output_tokens or 0.0,
-                ),
+                ) if req.time_per_output_token_ms is not None else None,
                 successful=successful,
                 incomplete=incomplete,
                 errored=errored,
             ),
             inter_token_latency_ms=StatusDistributionSummary.from_values_function(
                 function=lambda req: (
-                    req.inter_token_latency_ms or 0.0,
+                    req.inter_token_latency_ms,
                     (req.output_tokens or 1.0) - 1.0,
-                ),
+                ) if req.inter_token_latency_ms is not None else None,
                 successful=successful,
                 incomplete=incomplete,
                 errored=errored,
